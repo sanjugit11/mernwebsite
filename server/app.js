@@ -1,22 +1,15 @@
 const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
-
-const port = 3000;
-const DB = 'mongodb+srv://mern:mern123@cluster0.y5749.mongodb.net/mernweb?retryWrites=true&w=majority';
-
-mongoose.connect(DB , {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true
-}).then(() =>{
-    console.log('mongoose connected');
-}).catch((err) =>{
-    console.log(err);
-})
-
-
+const dotenv = require('dotenv');
+dotenv.config({path: './config.env'})
+//for the database connections
+require('./db/conn');
+//for understanding the JSON
+app.use(express.json())
+// for the routers
+app.use(require('./router/auth'))
+// runnning port
+const port = process.env.PORT;
 
 const middleware = (req , res , next) =>{
     
@@ -24,14 +17,15 @@ const middleware = (req , res , next) =>{
     next();
 }
 
+
 app.get("/",(req,res) =>{
     res.send("hello from express");
 })
-
-
-app.get("/about",middleware,(req,res) =>{
-    res.send("hello from express");
+app.get("/about",middleware ,(req,res) =>{
+    res.send("hello from express middleware");
 })
+
+
 
 app.listen(port ,() =>{
     console.log(`the sever is running on ${port}`)
