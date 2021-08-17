@@ -8,17 +8,14 @@ router.get('/' , (req , res)=>{
     res.send("this is hello from router");
 })
 
-router.post('/register' ,(req,res) =>{
- const {name,email,phone , work,password,cpassword} = req.body;
-   // console.log(req.body); //forsending the body of output
-//    console.log(name); //for name call
-//    console.log(email); //for email call
-if(!name||!email||!phone ||! work||!password||!cpassword){
+router.post('/register' ,async(req,res) =>{
+    const {name,email,phone , work,password,cpassword} = req.body;
+ 
+    if(!name||!email||!phone ||! work||!password||!cpassword){
     return res.status(422).json({error :"plz fill the all regarding fields"})
 }
-
-//search in database thta email is macthed or not
-User.findOne({email:email}).then((userExist) =>{
+try{
+    const userExist = await User.findOne({email:email})
     if(userExist){
         return res.status(422).json({error:"email already exist"})
     }
@@ -26,15 +23,37 @@ User.findOne({email:email}).then((userExist) =>{
     //new user
     const user = new User({name,email,phone , work,password,cpassword});
     //then save the new user
-    user.save().then(()=>{
-        res.status(201).json({message:"data created successfully"})
-    }).catch(() =>{
-        res.status(500).json({error :"failed to register"})
-    })
-}).catch( err => { console.log(err) });
+    await user.save();
+    res.status(201).json({message:"data created successfully"});
 
-   //res.json({message : req.body}) //postmen get the data
-  
+}catch(err){
+    console.log(err);
+}
+});
+
+//login credencials
+router.post('/login' ,async(req , res) =>{
+    const{email, password} = req.body ;
+    if(!email || !password){
+        return res.status(400).json({error:"plz fill the filled properly"})
+    }
+
+    try{
+        const loginExistE = await User.findOne({email:email});
+        const loginExistP = await User.findOne({password : password});
+        if(!loginExistE || !loginExistP){
+            return res.json({error:"invalid credencials"})
+        }
+        if(loginExistE && loginExistP){
+            res.status(201).json({message:"login successfully"})
+        }
+        
+
+    }catch(err){
+        console.log(err);
+    }
+
+
 })
 
 module.exports = router;
