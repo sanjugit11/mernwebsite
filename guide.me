@@ -1,3 +1,12 @@
 type null > config.env   // for dotenvfile
 imp:- when we write the process.env and require the dot env file in app.js
       then its not necessary to call the requires everywheree....
+
+      router.post('/register' ,(req,res) =>{
+    console.log(req.body);
+    res.json({message : req.body})
+  
+})
+//this is used to push data
+
+jwt.sign({unique as id in database} , secret key) //WE CAN MADE TRHE 12 WORD SECRETKEY

@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const bcript = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -22,6 +24,8 @@ try{
     //email not matched means new user is here
     //new user
     const user = new User({name,email,phone , work,password,cpassword});
+   //becript the passowrd
+
     //then save the new user
     await user.save();
     res.status(201).json({message:"data created successfully"});
@@ -39,20 +43,33 @@ router.post('/login' ,async(req , res) =>{
     }
 
     try{
+     
         const loginExistE = await User.findOne({email:email});
-        const loginExistP = await User.findOne({password : password});
-        if(!loginExistE || !loginExistP){
-            return res.json({error:"invalid credencials"})
+        if(!loginExistE){
+            return res.json({error:"invalid email credencials"})
         }
-        if(loginExistE && loginExistP){
+        const loginExistP =await bcript.compare(password , loginExistE.password)
+            console.log(loginExistP,"this is login p ");  //true if user is avilable
+
+        //to generateauth token call if  user is true    
+         const token = await loginExistE.generateAuthToken();
+         console.log(token);
+
+         //cookies store for a time
+         res.cookie("jwtoken" ,token ,{
+             expires:new Date(Date.now() + 86400000 ),
+             httpOnly:true
+         }) ;
+         
+        if(!loginExistP){
+            return res.json({error:"invalid password credencials"})
+        }else{
             res.status(201).json({message:"login successfully"})
         }
         
-
     }catch(err){
         console.log(err);
     }
-
 
 })
 

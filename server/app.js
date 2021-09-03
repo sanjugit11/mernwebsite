@@ -2,12 +2,16 @@ const express = require("express");
 const app = express();
 const dotenv = require('dotenv');
 dotenv.config({path: './config.env'})
+
 //for the database connections
 require('./db/conn');
-//for understanding the JSON
+
+//for understanding the JSON file
 app.use(express.json())
+
 // for the routers
 app.use(require('./router/auth'))
+
 // runnning port
 const port = process.env.PORT;
 
